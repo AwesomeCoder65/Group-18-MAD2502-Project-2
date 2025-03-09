@@ -34,6 +34,22 @@ def get_complex_grid(
     top_left: complex,
     bottom_right: complex,
     step: float) -> np.ndarray:
+    """
+    creates a grid of complex numbers given a top left and bottom right corner and a step
+    
+    the region between the top left and bottom right corners are divided given the step 
+    size. the individual grid points represent a complex number with a real and imaginary
+    component.
+    
+    Parameters:
+    top_left (complex): top left corner of the grid
+    bottom_right (complex): bottom right corner of the grid
+    step (float): The step size to determine the grids spacing
+
+    Returns:
+    np.ndarray: 2D array of the grid of complex numbers from the given inputs
+    
+    """
     
     #calculates real ranges for the grid
     real_range = np.arange(top_left.real, bottom_right.real, step) 
