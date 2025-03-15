@@ -66,3 +66,46 @@ def get_complex_grid(
     # uses broadcasting to multiply two reshaped grids with a height a 1 and a width of 1
     grid = real_range.reshape(1, cols) + 1j * imag_range.reshape(rows, 1)
     return grid
+
+def get_escape_time_color_arr(
+    c_arr: np.ndarray,
+    max_iterations: int
+) -> np.ndarray:
+    """
+    Figures out the color for each point in the grid of complex numbers.
+    Each color depends on how fast the point "escapes" when we run the Mandelbrot iteration.
+    Points that never escape get colored black. Points that escape faster are lighter.
+    Parameters:
+    c_arr : A 2D numpy array of complex numbers
+    max_iterations : How many times we loop before deciding the point never escapes
+    Returns: A 2D numpy array of floats in the range [0.0, 1.0] representing
+        greyscale color values for each point
+    """
+    # Initialize z and escape_times arrays
+    z = np.zeros_like(c_arr, dtype=np.complex128)
+
+    # Keep track of when each point escapes
+    escape_times = np.full(c_arr.shape, max_iterations + 1, dtype=int)
+
+    # Mask to track which points haven't escaped yet
+    mask = np.ones(c_arr.shape, dtype=bool)
+
+    # Loop through iterations to check when points escape
+    for iteration in range(max_iterations + 1):
+        # Mandelbrot iteration: z = z**2 + c
+        z[mask] = z[mask] * z[mask] + c_arr[mask]
+
+        # Check which points escaped with (|z| > 2)
+        escaped = np.abs(z) > 2
+
+        # Record escape time only for points escaping this iteration
+        newly_escaped = escaped & mask
+        escape_times[newly_escaped] = iteration
+
+        # Don't update if already escaped
+        mask[newly_escaped] = False
+
+    # Compute color values using the formula
+    color_arr = (max_iterations - escape_times + 1) / (max_iterations + 1)
+    return color_arr
+
