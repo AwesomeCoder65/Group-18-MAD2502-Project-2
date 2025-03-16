@@ -82,38 +82,37 @@ def get_escape_time_color_arr(
         greyscale color values for each point
     """
     # Initialize z and escape_times arrays
-    z = np.zeros_like(c_arr, dtype=np.complex128)
-
-    # Keep track of when each point escapes
-    escape_times = np.full(c_arr.shape, max_iterations + 1, dtype=int)
+    z = np.zeros(c_arr.shape, dtype=complex)
+    #keep track of when each point escapes
+    escape_times =np.ones(c_arr.shape, dtype=int)* (max_iterations + 1) 
 
     # Mask to track which points haven't escaped yet
-    mask = np.ones(c_arr.shape, dtype=bool)
+    mask =np.ones(c_arr.shape, dtype=bool)
 
-    # Loop through iterations to check when points escape
+    #Loop through iterations to check when points escape.
     for iteration in range(max_iterations + 1):
-        # Mandelbrot iteration: z = z**2 + c
-        z[mask] = z[mask] * z[mask] + c_arr[mask]
-
+        # Mandelbrot iteration: z = z**2 + c 
+        z[mask] = z[mask] *z[mask]+c_arr[mask]
+  
         # Check which points escaped with (|z| > 2)
         escaped = np.abs(z) > 2
 
         # Record escape time only for points escaping this iteration
-        newly_escaped = escaped & mask
-        escape_times[newly_escaped] = iteration
+        newly_escaped = escaped & mask 
+        escape_times[newly_escaped] = iteration 
 
         # Don't update if already escaped
         mask[newly_escaped] = False
 
     # Compute color values using the formula
     color_arr = (max_iterations - escape_times + 1) / (max_iterations + 1)
-    return color_arr
+    return color_arr 
 
 def get_julia_color_arr(
     c_arr: np.ndarray,
-    julia_c: complex,
+    julia_c: complex, 
     max_iterations: int
-) -> np.ndarray:
+) -> np.ndarray: 
     """
     figures out the color for each point in the grid of complex numbers for the Julia set.
     Each color depends on how fast the point escapes when we run the Julia set iteration.
@@ -130,23 +129,23 @@ def get_julia_color_arr(
         
     """
     z = c_arr + 0j #Creates a complex
-    escape_times = np.zeros(z.shape, dtype=int) +max_iterations+1
-    mask = np.ones(z.shape, dtype=bool)
-    escape_radius = max(abs(julia_c), 2) # defines the Julia escape radius
+    escape_times = np.zeros(z.shape, dtype=int) +max_iterations+1  
+    mask = np.ones(z.shape, dtype=bool) 
+    escape_radius = max(abs(julia_c), 2) # defines the Julia escape radius.
 
     for iteration in range(max_iterations + 1):
-        #Julia set iteration: z = z**2 + julia_c
-        z[mask] = z[mask] * z[mask] + julia_c
-        
+        #Julia set iteration: z = z**2 + julia_c 
+        z[mask] = z[mask] * z[mask] + julia_c 
+         
         #checks the points that escaped using (|z| > escape_radius)
         escaped = np.abs(z) > escape_radius
         #Record escape time only for points escaping this iteration
         newly_escaped = escaped & mask
         escape_times[newly_escaped] = iteration
 
-        # Don't update if already escaped
+        # Don't update if already escaped 
         mask[newly_escaped] = False
 
     # Compute color values using the same formula as Mandelbrot
-    color_arr = (max_iterations- escape_times+1) /(max_iterations+1)
+    color_arr = (max_iterations- escape_times+1) /(max_iterations+1) 
     return color_arr
