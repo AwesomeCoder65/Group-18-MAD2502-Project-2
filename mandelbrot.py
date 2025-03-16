@@ -109,3 +109,44 @@ def get_escape_time_color_arr(
     color_arr = (max_iterations - escape_times + 1) / (max_iterations + 1)
     return color_arr
 
+def get_julia_color_arr(
+    c_arr: np.ndarray,
+    julia_c: complex,
+    max_iterations: int
+) -> np.ndarray:
+    """
+    figures out the color for each point in the grid of complex numbers for the Julia set.
+    Each color depends on how fast the point escapes when we run the Julia set iteration.
+    Points that never escape get colored black. and points that escape faster are lighter
+    Parameters:
+    c_arr : A 2D numpy array of complex numbers representing the grid
+    julia_c : The complex number c for the Julia set
+    max_iterations : How many times we loop before deciding the point never escapes
+    
+    returns:
+     A 2D numpy array of floats in from 0.0 to 1.0 representing greyscale color 
+    values for each point
+        
+        
+    """
+    z = c_arr + 0j #Creates a complex
+    escape_times = np.zeros(z.shape, dtype=int) +max_iterations+1
+    mask = np.ones(z.shape, dtype=bool)
+    escape_radius = max(abs(julia_c), 2) # defines the Julia escape radius
+
+    for iteration in range(max_iterations + 1):
+        #Julia set iteration: z = z**2 + julia_c
+        z[mask] = z[mask] * z[mask] + julia_c
+        
+        #checks the points that escaped using (|z| > escape_radius)
+        escaped = np.abs(z) > escape_radius
+        #Record escape time only for points escaping this iteration
+        newly_escaped = escaped & mask
+        escape_times[newly_escaped] = iteration
+
+        # Don't update if already escaped
+        mask[newly_escaped] = False
+
+    # Compute color values using the same formula as Mandelbrot
+    color_arr = (max_iterations- escape_times+1) /(max_iterations+1)
+    return color_arr
